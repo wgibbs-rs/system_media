@@ -1,0 +1,25 @@
+name: cpal
+
+on: [push, pull_request]
+
+jobs:
+
+  rustfmt-check:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Install stable
+      uses: dtolnay/rust-toolchain@stable
+      with:
+        components: rustfmt
+    - name: Run rustfmt
+      run: cargo fmt --all -- --check
+
+  macos-test:
+    runs-on: macOS-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install stable
+        uses: dtolnay/rust-toolchain@stable
+      - name: Test system_media
+        run: cargo test --verbose
