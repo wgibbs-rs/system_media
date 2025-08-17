@@ -135,11 +135,3 @@ impl MediaSession {
         self.backend.stop_session();
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn it_works() {}
-}

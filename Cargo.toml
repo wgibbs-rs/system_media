@@ -3,5 +3,10 @@ name = "system_media"
 version = "0.1.0"
 edition = "2024"
 
-[dependencies]
-swift-rs = { version = "1.0.7", features = ["build"] }
+authors = ["William Gibbs <wgibbs08@outlook.com>"]
+description = "Rust crate for interacting with the NowPlaying API"
+license = "MIT"
+repository = "https://github.com/wgibbs-rs/system_media"
+readme = "README.md"
+keywords = ["rust", "swift", "nowplaying", "macos", "audio", "video"]
+categories = ["external-ffi-bindings", "multimedia::audio", "multimedia::video"]
