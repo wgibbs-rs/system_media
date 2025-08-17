@@ -2,71 +2,109 @@ import Foundation
 import MediaPlayer
 import AVFoundation
 
-// Tell Swift this function exists somewhere at runtime
-@_silgen_name("rust_hello")
-public func rustHello()
+@_silgen_name("rust_resume_playback_command")
+public func rustStartPlaybackCommand()
 
-@_cdecl("hello_world")
-public func startNowPlayingSession() {
-    // Get the shared MPNowPlayingInfoCenter
-    let nowPlayingInfoCenter = MPNowPlayingInfoCenter.default()
-    
-    // Set up remote command targets BEFORE setting the info
-    setupRemoteCommandTargets()
-    
-    // Create now playing info dictionary
+@_silgen_name("rust_pause_playback_command")
+public func rustPausePlaybackCommand()
+
+@_silgen_name("rust_next_track_playback_command")
+public func rustNextTrackCommand()
+
+@_silgen_name("rust_previous_track_playback_command")
+public func rustPreviousTrackCommand()
+
+@_cdecl("swift_set_metadata_title")
+public func setMetadataTitle(title : UnsafePointer<CChar>) {
+    let s = String(cString: title)
     var nowPlayingInfo = [String: Any]()
-    
-    // Set basic metadata
-    nowPlayingInfo[MPMediaItemPropertyTitle] = "Your Song Title"
-    nowPlayingInfo[MPMediaItemPropertyArtist] = "Your Artist Name" 
-    nowPlayingInfo[MPMediaItemPropertyAlbumTitle] = "Your Album Name"
-    nowPlayingInfo[MPMediaItemPropertyPlaybackDuration] = 180.0
-    nowPlayingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] = 0.0
-    // This is crucial - set to 1.0 to indicate "playing" state
-    nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackRate] = 1.0
-    // Add media type
-    nowPlayingInfo[MPNowPlayingInfoPropertyMediaType] = MPNowPlayingInfoMediaType.audio.rawValue
-    
-    // Set the now playing info
-    nowPlayingInfoCenter.nowPlayingInfo = nowPlayingInfo
-    
-    print("Now Playing session started")
-    print("NowPlaying info set: \(nowPlayingInfo)")
-    
-    // Keep the process alive so the Now Playing info persists
-    print("Keeping process alive... Press Ctrl+C to exit")
-    RunLoop.main.run()
+    nowPlayingInfo[MPMediaItemPropertyTitle] = s
+    MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo
+}
+
+@_cdecl("swift_set_metadata_artist")
+public func setMetadataArtist(artist : UnsafePointer<CChar>) {
+    let s = String(cString: artist)
+    var nowPlayingInfo = [String: Any]()
+    nowPlayingInfo[MPMediaItemPropertyArtist] = s
+    MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo
+}
+
+@_cdecl("swift_set_metadata_album")
+public func setMetadataAlbumTitle(album : UnsafePointer<CChar>) {
+    let s = String(cString: album)
+    var nowPlayingInfo = [String: Any]()
+    nowPlayingInfo[MPMediaItemPropertyAlbumTitle] = s
+    MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo
+}
+
+@_cdecl("swift_set_metadata_genre")
+public func setMetadataGenre(genre : UnsafePointer<CChar>) {
+    let s = String(cString: genre)
+    var nowPlayingInfo = [String: Any]()
+    nowPlayingInfo[MPMediaItemPropertyGenre] = s
+    MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo
+}
+
+@_cdecl("swift_set_metadata_media_type")
+public func setMetadataMediaType(id: Int) {
+    var nowPlayingInfo = [String: Any]()
+    if (id == 0) {
+        nowPlayingInfo[MPNowPlayingInfoPropertyMediaType] = MPNowPlayingInfoMediaType.audio.rawValue
+    } else {
+        nowPlayingInfo[MPNowPlayingInfoPropertyMediaType] = MPNowPlayingInfoMediaType.video.rawValue
+    }
+    MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo
+}
+
+@_cdecl("swift_set_playback_duration")
+public func setPlaybackDuration(seconds : Double) {
+    var nowPlayingInfo = [String: Any]()
+    nowPlayingInfo[MPMediaItemPropertyPlaybackDuration] = seconds
+    MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo
+}
+
+@_cdecl("swift_set_elapsed_duration")
+public func setElapsedPlaybackTime(seconds : Double) {
+    var nowPlayingInfo = [String: Any]()
+    nowPlayingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] = seconds
+    MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo
+}
+
+@_cdecl("swift_set_playback_rate")
+public func setPlaybackRate(rate : Double) {
+    var nowPlayingInfo = [String: Any]()
+    nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackRate] = rate
+    MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo
+}
+
+@_cdecl("swift_start_session")
+public func startSession() {
+    setupRemoteCommandTargets()     // Create event hooks for media session.
+    setPlaybackRate(rate: 0.0)      // Ensures NowPlaying is properly displayed.
+    RunLoop.main.run()              // Loop the thread indefinitely; until killed.
 }
 
 private func setupRemoteCommandTargets() {
     let commandCenter = MPRemoteCommandCenter.shared()
     
-    // Play command
     commandCenter.playCommand.addTarget { event in
-        // Handle play action
-        print("Play command received")
+        rustStartPlaybackCommand()
         return .success
     }
     
-    // Pause command
     commandCenter.pauseCommand.addTarget { event in
-        // Handle pause action
-        print("Pause command received")
+        rustPausePlaybackCommand()
         return .success
     }
     
-    // Next track command
     commandCenter.nextTrackCommand.addTarget { event in
-        // Handle next track action
-        print("Next track command received")
+        rustNextTrackCommand()
         return .success
     }
     
-    // Previous track command
     commandCenter.previousTrackCommand.addTarget { event in
-        // Handle previous track action
-        print("Previous track command received")
+        rustPreviousTrackCommand()
         return .success
     }
 }

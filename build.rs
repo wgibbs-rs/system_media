@@ -29,8 +29,7 @@ fn main() {
     if !status.success() {
         panic!("Swift compilation failed");
     }
-
-    // Tell cargo to link the library
+    
     println!("cargo:rustc-link-search=native={}", out_dir);
     println!("cargo:rustc-link-lib=static=swiftlib");
 
