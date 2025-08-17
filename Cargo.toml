@@ -8,5 +8,5 @@ description = "Rust crate for interacting with the NowPlaying API"
 license = "MIT"
 repository = "https://github.com/wgibbs-rs/system_media"
 readme = "README.md"
-keywords = ["rust", "swift", "nowplaying", "macos", "audio", "video"]
+keywords = ["rust", "swift", "macos", "audio", "video"]
 categories = ["external-ffi-bindings", "multimedia::audio", "multimedia::video"]
