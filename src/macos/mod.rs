@@ -1,5 +1,6 @@
-use std::ffi::CString;
 use crate::{MediaBackend, MediaType};
+use std::ffi::CString;
+
 // Swift functions called by Rust
 unsafe extern "C" {
     fn swift_set_metadata_title(title: *mut i8);
@@ -16,13 +17,13 @@ unsafe extern "C" {
 // Rust functions called by Swift
 // TODO: Add hooks for SystemMedia events.
 #[unsafe(no_mangle)]
-pub unsafe extern "C" fn rust_resume_playback_command() { }
+pub unsafe extern "C" fn rust_resume_playback_command() {}
 #[unsafe(no_mangle)]
-pub unsafe extern "C" fn rust_pause_playback_command() { }
+pub unsafe extern "C" fn rust_pause_playback_command() {}
 #[unsafe(no_mangle)]
-pub unsafe extern "C" fn rust_next_track_playback_command() { }
+pub unsafe extern "C" fn rust_next_track_playback_command() {}
 #[unsafe(no_mangle)]
-pub unsafe extern "C" fn rust_previous_track_playback_command() { }
+pub unsafe extern "C" fn rust_previous_track_playback_command() {}
 
 fn str_to_raw(s: &str) -> *mut i8 {
     let c_string = CString::new(s).expect("CString::new() failed. ");
@@ -32,7 +33,9 @@ fn str_to_raw(s: &str) -> *mut i8 {
 pub struct NowPlayingBackend;
 
 impl NowPlayingBackend {
-    pub fn new() -> Self { Self }
+    pub fn new() -> Self {
+        Self
+    }
 }
 
 impl MediaBackend for NowPlayingBackend {
@@ -81,7 +84,7 @@ impl MediaBackend for NowPlayingBackend {
             swift_set_elapsed_duration(duration);
         }
     }
-    
+
     fn set_playback_rate(&self, rate: f64) {
         unsafe {
             swift_set_playback_rate(rate);

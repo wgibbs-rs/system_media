@@ -1,8 +1,6 @@
 #[cfg(target_os = "macos")]
 mod macos;
-#[cfg(not(any(
-    target_os = "macos"
-)))]
+#[cfg(not(any(target_os = "macos")))]
 mod null;
 
 pub trait MediaBackend {
@@ -22,7 +20,7 @@ pub trait MediaBackend {
 #[derive(Clone, Copy, PartialEq)]
 pub enum MediaType {
     Audio,
-    Video
+    Video,
 }
 
 pub struct Metadata {
@@ -41,14 +39,11 @@ pub struct MediaSession {
 }
 
 impl MediaSession {
-
     pub fn new() -> Self {
         #[cfg(target_os = "macos")]
         let backend = Box::new(macos::NowPlayingBackend::new());
 
-        #[cfg(not(any(
-            target_os = "macos"
-        )))]
+        #[cfg(not(any(target_os = "macos")))]
         let backend = Box::new(null::NullBackend::new());
 
         Self {
@@ -78,56 +73,56 @@ impl MediaSession {
         self.metadata.artist = artist.to_string();
         self.backend.set_artist(artist);
     }
-    
+
     pub fn artist(&self) -> &str {
         &self.metadata.artist
     }
-    
+
     pub fn set_album(&mut self, album: &str) {
         self.metadata.album = album.to_string();
         self.backend.set_album(album);
     }
-    
+
     pub fn album(&self) -> &str {
         &self.metadata.album
     }
-    
+
     pub fn set_genre(&mut self, genre: &str) {
         self.metadata.genre = genre.to_string();
         self.backend.set_album(genre);
     }
-    
+
     pub fn genre(&self) -> &str {
         &self.metadata.genre
     }
-    
+
     pub fn set_media_type(&mut self, media_type: MediaType) {
         self.metadata.media_type = media_type;
         self.backend.set_media_type(media_type);
     }
-    
+
     pub fn media_type(&self) -> MediaType {
         self.metadata.media_type
     }
-    
+
     pub fn set_playback_duration(&mut self, duration: f64) {
         self.metadata.duration = duration;
         self.backend.set_playback_duration(duration);
     }
-    
+
     pub fn duration(&self) -> f64 {
         self.metadata.duration
     }
-    
+
     pub fn set_elapsed_duration(&self, duration: f64) {
         self.backend.set_elapsed_duration(duration);
     }
-    
+
     pub fn set_playback_rate(&mut self, rate: f64) {
         self.metadata.playback_rate = rate;
         self.backend.set_playback_rate(rate);
     }
-    
+
     pub fn playback_rate(&self) -> f64 {
         self.metadata.playback_rate
     }
@@ -135,13 +130,11 @@ impl MediaSession {
     pub fn start(&self) {
         self.backend.start_session();
     }
-    
+
     pub fn stop(&self) {
         self.backend.stop_session();
     }
-
 }
-
 
 #[cfg(test)]
 mod tests {

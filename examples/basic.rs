@@ -1,5 +1,3 @@
-
-
 use system_media::MediaSession;
 
 fn main() {

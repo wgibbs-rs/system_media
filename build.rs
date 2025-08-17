@@ -1,10 +1,8 @@
-use std::process::Command;
 use std::env;
+use std::process::Command;
 
 #[cfg(target_os = "macos")]
 fn main() {
-
-    // Path to your Swift source file
     let swift_file = "src/macos/nowplaying.swift";
 
     // Output directory for compiled library
@@ -22,15 +20,15 @@ fn main() {
             "AVFoundation",
             "-o",
             &lib_path,
-            swift_file])
+            swift_file,
+        ])
         .status()
         .expect("Failed to compile Swift code");
 
     if !status.success() {
         panic!("Swift compilation failed");
     }
-    
+
     println!("cargo:rustc-link-search=native={}", out_dir);
     println!("cargo:rustc-link-lib=static=swiftlib");
-
 }
