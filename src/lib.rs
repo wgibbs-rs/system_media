@@ -3,6 +3,8 @@ mod macos;
 #[cfg(not(any(target_os = "macos")))]
 mod null;
 
+use std::sync::{Arc, Mutex};
+
 pub trait MediaBackend {
     fn set_title(&self, title: &str);
     fn set_artist(&self, artist: &str);
@@ -35,7 +37,7 @@ pub struct Metadata {
 
 pub struct MediaSession {
     backend: Box<dyn MediaBackend>,
-    metadata: Metadata,
+    metadata: Arc<Mutex<Metadata>>,
 }
 
 impl MediaSession {
@@ -48,70 +50,74 @@ impl MediaSession {
 
         Self {
             backend,
-            metadata: Metadata {
+            metadata: Arc::new(Mutex::new(Metadata {
                 title: "".to_string(),
                 artist: "".to_string(),
                 album: "".to_string(),
                 genre: "".to_string(),
                 media_type: MediaType::Audio,
-                duration: 0.0f64,
-                playback_rate: 0.0f64,
-            },
+                duration: 0.0,
+                playback_rate: 0.0,
+            })),
         }
     }
 
     pub fn set_title(&mut self, title: &str) {
-        self.metadata.title = title.to_string();
+        Arc::clone(&self.metadata).lock().unwrap().title = title.to_string();
         self.backend.set_title(title);
     }
 
-    pub fn title(&self) -> &str {
-        &self.metadata.title
+    pub fn title(&self) -> String {
+        let data = self.metadata.lock().unwrap();
+        data.title.clone()
     }
 
     pub fn set_artist(&mut self, artist: &str) {
-        self.metadata.artist = artist.to_string();
+        Arc::clone(&self.metadata).lock().unwrap().artist = artist.to_string();
         self.backend.set_artist(artist);
     }
 
-    pub fn artist(&self) -> &str {
-        &self.metadata.artist
+    pub fn artist(&self) -> String {
+        let data = self.metadata.lock().unwrap();
+        data.artist.clone()
     }
 
     pub fn set_album(&mut self, album: &str) {
-        self.metadata.album = album.to_string();
+        Arc::clone(&self.metadata).lock().unwrap().album = album.to_string();
         self.backend.set_album(album);
     }
 
-    pub fn album(&self) -> &str {
-        &self.metadata.album
+    pub fn album(&self) -> String {
+        let data = self.metadata.lock().unwrap();
+        data.album.clone()
     }
 
     pub fn set_genre(&mut self, genre: &str) {
-        self.metadata.genre = genre.to_string();
+        Arc::clone(&self.metadata).lock().unwrap().genre = genre.to_string();
         self.backend.set_album(genre);
     }
 
-    pub fn genre(&self) -> &str {
-        &self.metadata.genre
+    pub fn genre(&self) -> String {
+        let md = self.metadata.lock().unwrap();
+        md.genre.clone()
     }
 
     pub fn set_media_type(&mut self, media_type: MediaType) {
-        self.metadata.media_type = media_type;
+        Arc::clone(&self.metadata).lock().unwrap().media_type = media_type;
         self.backend.set_media_type(media_type);
     }
 
     pub fn media_type(&self) -> MediaType {
-        self.metadata.media_type
+        Arc::clone(&self.metadata).lock().unwrap().media_type
     }
 
     pub fn set_playback_duration(&mut self, duration: f64) {
-        self.metadata.duration = duration;
+        Arc::clone(&self.metadata).lock().unwrap().duration = duration;
         self.backend.set_playback_duration(duration);
     }
 
     pub fn duration(&self) -> f64 {
-        self.metadata.duration
+        Arc::clone(&self.metadata).lock().unwrap().duration
     }
 
     pub fn set_elapsed_duration(&self, duration: f64) {
@@ -119,12 +125,12 @@ impl MediaSession {
     }
 
     pub fn set_playback_rate(&mut self, rate: f64) {
-        self.metadata.playback_rate = rate;
+        Arc::clone(&self.metadata).lock().unwrap().playback_rate = rate;
         self.backend.set_playback_rate(rate);
     }
 
     pub fn playback_rate(&self) -> f64 {
-        self.metadata.playback_rate
+        Arc::clone(&self.metadata).lock().unwrap().playback_rate
     }
 
     pub fn start(&self) {
