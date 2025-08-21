@@ -10,6 +10,3 @@ repository = "https://github.com/RustAudio/system-media"
 readme = "README.md"
 keywords = ["rust", "swift", "macos", "audio", "video"]
 categories = ["external-ffi-bindings", "multimedia::audio", "multimedia::video"]
-
-[dependencies]
-image = "0.25.6"

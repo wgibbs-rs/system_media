@@ -5,7 +5,6 @@ mod null;
 
 use std::sync::{Arc, Mutex};
 use std::error::Error;
-use image::ImageReader;
 
 pub trait MediaBackend {
     fn set_title(&self, title: &str);
@@ -37,13 +36,6 @@ pub struct Metadata {
     media_type: MediaType,
     duration: f64,
     playback_rate: f64,
-}
-
-fn decode_image(path: &str) -> Result<Vec<u8>, Box<dyn Error>> {
-    let img = ImageReader::open(path)?
-        .decode()?
-        .to_rgb8();
-    Ok(img.into_raw())
 }
 
 pub struct MediaSession {

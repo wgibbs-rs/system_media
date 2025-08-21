@@ -1,0 +1,1 @@
+// This file will contain bindings to the SMTC API. This has not yet been implemented.

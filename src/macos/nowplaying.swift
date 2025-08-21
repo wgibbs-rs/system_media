@@ -75,17 +75,19 @@ func resize(image: NSImage, to newSize: NSSize) -> NSImage {
 public func setMetadataImage(bytes: UnsafePointer<UInt8>, length: Int) {
     DispatchQueue.main.async {
         let data = Data(bytes: bytes, count: length)
-        guard let image = NSImage(data: data) else {
-            print("Failed to convert data to NSImage")
-            return
+        guard let image = NSImage(data: data) else { return }
+        
+        let artwork = MPMediaItemArtwork(boundsSize: image.size) { size in
+            let newImage = NSImage(size: size)
+            newImage.lockFocus()
+            image.draw(in: NSRect(origin: .zero, size: size))
+            newImage.unlockFocus()
+            return newImage
         }
-        let scaledImg = resize(image: image, to: NSSize(width: 512, height: 512))
-        let artwork = MPMediaItemArtwork(boundsSize: image.size) { _ in
-            return scaledImg
-        }
-        var nowPlayingInfo = MPNowPlayingInfoCenter.default().nowPlayingInfo ?? [String: Any]()
-        nowPlayingInfo[MPMediaItemPropertyArtwork] = artwork
-        MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo
+        
+        var info = MPNowPlayingInfoCenter.default().nowPlayingInfo ?? [:]
+        info[MPMediaItemPropertyArtwork] = artwork
+        MPNowPlayingInfoCenter.default().nowPlayingInfo = info
     }
 }
 
