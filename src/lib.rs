@@ -4,12 +4,15 @@ mod macos;
 mod null;
 
 use std::sync::{Arc, Mutex};
+use std::error::Error;
+use image::ImageReader;
 
 pub trait MediaBackend {
     fn set_title(&self, title: &str);
     fn set_artist(&self, artist: &str);
     fn set_album(&self, album: &str);
     fn set_genre(&self, genre: &str);
+    fn set_image(&self, path: &str);
     fn set_media_type(&self, media_type: MediaType);
     fn set_playback_duration(&self, duration: f64);
     fn set_elapsed_duration(&self, duration: f64);
@@ -30,9 +33,17 @@ pub struct Metadata {
     artist: String,
     album: String,
     genre: String,
+    image_path: String,
     media_type: MediaType,
     duration: f64,
     playback_rate: f64,
+}
+
+fn decode_image(path: &str) -> Result<Vec<u8>, Box<dyn Error>> {
+    let img = ImageReader::open(path)?
+        .decode()?
+        .to_rgb8();
+    Ok(img.into_raw())
 }
 
 pub struct MediaSession {
@@ -55,6 +66,7 @@ impl MediaSession {
                 artist: "".to_string(),
                 album: "".to_string(),
                 genre: "".to_string(),
+                image_path: "".to_string(),
                 media_type: MediaType::Audio,
                 duration: 0.0,
                 playback_rate: 0.0,
@@ -100,6 +112,17 @@ impl MediaSession {
     pub fn genre(&self) -> String {
         let md = self.metadata.lock().unwrap();
         md.genre.clone()
+    }
+
+    pub fn set_image(&mut self, path: &str) -> Result<(), Box<dyn Error>> {
+        Arc::clone(&self.metadata).lock().unwrap().image_path = path.to_string();
+        self.backend.set_image(path);
+        Ok(())
+    }
+
+    pub fn image(&self) -> String {
+        let md = self.metadata.lock().unwrap();
+        md.image_path.clone()
     }
 
     pub fn set_media_type(&mut self, media_type: MediaType) {

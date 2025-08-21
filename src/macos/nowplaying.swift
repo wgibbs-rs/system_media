@@ -1,6 +1,8 @@
 import Foundation
 import MediaPlayer
 import AVFoundation
+import AppKit
+import Cocoa
 
 @_silgen_name("rust_resume_playback_command")
 public func rustStartPlaybackCommand()
@@ -16,73 +18,121 @@ public func rustPreviousTrackCommand()
 
 @_cdecl("swift_set_metadata_title")
 public func setMetadataTitle(title : UnsafePointer<CChar>) {
-    let s = String(cString: title)
-    var nowPlayingInfo = [String: Any]()
-    nowPlayingInfo[MPMediaItemPropertyTitle] = s
-    MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo
+    DispatchQueue.main.async {
+        let s = String(cString: title)
+        var nowPlayingInfo = MPNowPlayingInfoCenter.default().nowPlayingInfo ?? [String: Any]()
+        nowPlayingInfo[MPMediaItemPropertyTitle] = s
+        MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo
+    }
 }
 
 @_cdecl("swift_set_metadata_artist")
 public func setMetadataArtist(artist : UnsafePointer<CChar>) {
-    let s = String(cString: artist)
-    var nowPlayingInfo = [String: Any]()
-    nowPlayingInfo[MPMediaItemPropertyArtist] = s
-    MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo
+    DispatchQueue.main.async {
+        let s = String(cString: artist)
+        var nowPlayingInfo = MPNowPlayingInfoCenter.default().nowPlayingInfo ?? [String: Any]()
+        nowPlayingInfo[MPMediaItemPropertyArtist] = s
+        MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo
+    }
 }
 
 @_cdecl("swift_set_metadata_album")
 public func setMetadataAlbumTitle(album : UnsafePointer<CChar>) {
-    let s = String(cString: album)
-    var nowPlayingInfo = [String: Any]()
-    nowPlayingInfo[MPMediaItemPropertyAlbumTitle] = s
-    MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo
+    DispatchQueue.main.async {
+        let s = String(cString: album)
+        var nowPlayingInfo = MPNowPlayingInfoCenter.default().nowPlayingInfo ?? [String: Any]()
+        nowPlayingInfo[MPMediaItemPropertyAlbumTitle] = s
+        MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo
+    }
 }
 
 @_cdecl("swift_set_metadata_genre")
 public func setMetadataGenre(genre : UnsafePointer<CChar>) {
-    let s = String(cString: genre)
-    var nowPlayingInfo = [String: Any]()
-    nowPlayingInfo[MPMediaItemPropertyGenre] = s
-    MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo
+    DispatchQueue.main.async {
+        let s = String(cString: genre)
+        var nowPlayingInfo = MPNowPlayingInfoCenter.default().nowPlayingInfo ?? [String: Any]()
+        nowPlayingInfo[MPMediaItemPropertyGenre] = s
+        MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo
+    }
+}
+
+func resize(image: NSImage, to newSize: NSSize) -> NSImage {
+    let resizedImage = NSImage(size: newSize)
+    resizedImage.lockFocus()
+    defer { resizedImage.unlockFocus() }
+
+    image.draw(
+        in: NSRect(origin: .zero, size: newSize),
+        from: NSRect(origin: .zero, size: image.size),
+        operation: .copy,
+        fraction: 1.0
+    )
+
+    return resizedImage
+}
+
+@_cdecl("swift_set_metadata_image")
+public func setMetadataImage(bytes: UnsafePointer<UInt8>, length: Int) {
+    DispatchQueue.main.async {
+        let data = Data(bytes: bytes, count: length)
+        guard let image = NSImage(data: data) else {
+            print("Failed to convert data to NSImage")
+            return
+        }
+        let scaledImg = resize(image: image, to: NSSize(width: 512, height: 512))
+        let artwork = MPMediaItemArtwork(boundsSize: image.size) { _ in
+            return scaledImg
+        }
+        var nowPlayingInfo = MPNowPlayingInfoCenter.default().nowPlayingInfo ?? [String: Any]()
+        nowPlayingInfo[MPMediaItemPropertyArtwork] = artwork
+        MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo
+    }
 }
 
 @_cdecl("swift_set_metadata_media_type")
 public func setMetadataMediaType(id: Int) {
-    var nowPlayingInfo = [String: Any]()
-    if (id == 0) {
-        nowPlayingInfo[MPNowPlayingInfoPropertyMediaType] = MPNowPlayingInfoMediaType.audio.rawValue
-    } else {
-        nowPlayingInfo[MPNowPlayingInfoPropertyMediaType] = MPNowPlayingInfoMediaType.video.rawValue
+    DispatchQueue.main.async {
+        var nowPlayingInfo = MPNowPlayingInfoCenter.default().nowPlayingInfo ?? [String: Any]()
+        if (id == 0) {
+            nowPlayingInfo[MPNowPlayingInfoPropertyMediaType] = MPNowPlayingInfoMediaType.audio.rawValue
+        } else {
+            nowPlayingInfo[MPNowPlayingInfoPropertyMediaType] = MPNowPlayingInfoMediaType.video.rawValue
+        }
+        MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo
     }
-    MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo
 }
 
 @_cdecl("swift_set_playback_duration")
 public func setPlaybackDuration(seconds : Double) {
-    var nowPlayingInfo = [String: Any]()
-    nowPlayingInfo[MPMediaItemPropertyPlaybackDuration] = seconds
-    MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo
+    DispatchQueue.main.async {
+        var nowPlayingInfo = MPNowPlayingInfoCenter.default().nowPlayingInfo ?? [String: Any]()
+        nowPlayingInfo[MPMediaItemPropertyPlaybackDuration] = seconds
+        MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo
+    }
 }
 
 @_cdecl("swift_set_elapsed_duration")
 public func setElapsedPlaybackTime(seconds : Double) {
-    var nowPlayingInfo = [String: Any]()
-    nowPlayingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] = seconds
-    MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo
+    DispatchQueue.main.async {
+        var nowPlayingInfo = MPNowPlayingInfoCenter.default().nowPlayingInfo ?? [String: Any]()
+        nowPlayingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] = seconds
+        MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo
+    }
 }
 
 @_cdecl("swift_set_playback_rate")
 public func setPlaybackRate(rate : Double) {
-    var nowPlayingInfo = [String: Any]()
-    nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackRate] = rate
-    MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo
+    DispatchQueue.main.async {
+        var nowPlayingInfo = MPNowPlayingInfoCenter.default().nowPlayingInfo ?? [String: Any]()
+        nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackRate] = rate
+        MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo
+    }
 }
 
 @_cdecl("swift_start_session")
 public func startSession() {
     setupRemoteCommandTargets()     // Create event hooks for media session.
-    setPlaybackRate(rate: 0.0)      // Ensures NowPlaying is properly displayed.
-    RunLoop.main.run()              // Loop the thread indefinitely; until killed.
+    RunLoop.main.run()              // Loop the thread indefinitely until killed.
 }
 
 private func setupRemoteCommandTargets() {

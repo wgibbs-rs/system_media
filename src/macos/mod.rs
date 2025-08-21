@@ -1,5 +1,6 @@
 use crate::{MediaBackend, MediaType};
 use std::ffi::CString;
+use std::thread;
 
 // Swift functions called by Rust
 unsafe extern "C" {
@@ -7,6 +8,7 @@ unsafe extern "C" {
     fn swift_set_metadata_artist(artist: *mut i8);
     fn swift_set_metadata_album(album: *mut i8);
     fn swift_set_metadata_genre(genre: *mut i8);
+    fn swift_set_metadata_image(bytes: *const u8, length: usize);
     fn swift_set_metadata_media_type(id: i64);
     fn swift_set_playback_duration(seconds: f64);
     fn swift_set_elapsed_duration(seconds: f64);
@@ -60,6 +62,13 @@ impl MediaBackend for NowPlayingBackend {
     fn set_genre(&self, genre: &str) {
         unsafe {
             swift_set_metadata_genre(str_to_raw(genre));
+        }
+    }
+    
+    fn set_image(&self, path: &str) {
+        let data = std::fs::read(path).unwrap();
+        unsafe {
+            swift_set_metadata_image(data.as_ptr(), data.len());
         }
     }
 
