@@ -1,6 +1,6 @@
 use crate::{MediaBackend, MediaType};
-use std::ffi::CString;
 use std::error::Error;
+use std::ffi::CString;
 
 // Swift functions called by Rust
 unsafe extern "C" {
