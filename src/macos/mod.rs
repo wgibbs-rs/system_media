@@ -1,6 +1,6 @@
 use crate::{MediaBackend, MediaType};
 use std::ffi::CString;
-use std::thread;
+use std::error::Error;
 
 // Swift functions called by Rust
 unsafe extern "C" {
@@ -64,12 +64,13 @@ impl MediaBackend for NowPlayingBackend {
             swift_set_metadata_genre(str_to_raw(genre));
         }
     }
-    
-    fn set_image(&self, path: &str) {
-        let data = std::fs::read(path).unwrap();
+
+    fn set_image(&self, path: &str) -> Result<(), Box<dyn Error>> {
+        let data = std::fs::read(path)?;
         unsafe {
             swift_set_metadata_image(data.as_ptr(), data.len());
         }
+        Ok(())
     }
 
     fn set_media_type(&self, media_type: MediaType) {

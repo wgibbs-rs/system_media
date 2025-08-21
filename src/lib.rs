@@ -3,15 +3,15 @@ mod macos;
 #[cfg(not(any(target_os = "macos")))]
 mod null;
 
-use std::sync::{Arc, Mutex};
 use std::error::Error;
+use std::sync::{Arc, Mutex};
 
 pub trait MediaBackend {
     fn set_title(&self, title: &str);
     fn set_artist(&self, artist: &str);
     fn set_album(&self, album: &str);
     fn set_genre(&self, genre: &str);
-    fn set_image(&self, path: &str);
+    fn set_image(&self, path: &str) -> Result<(), Box<dyn Error>>;
     fn set_media_type(&self, media_type: MediaType);
     fn set_playback_duration(&self, duration: f64);
     fn set_elapsed_duration(&self, duration: f64);
@@ -108,7 +108,7 @@ impl MediaSession {
 
     pub fn set_image(&mut self, path: &str) -> Result<(), Box<dyn Error>> {
         Arc::clone(&self.metadata).lock().unwrap().image_path = path.to_string();
-        self.backend.set_image(path);
+        self.backend.set_image(path)?;
         Ok(())
     }
 

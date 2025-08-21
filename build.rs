@@ -18,8 +18,6 @@ fn main() {
             "AVFoundation",
             "-framework",
             "AppKit",
-            "-framework",
-            "Cocoa",
             "-o",
             &lib_path,
             swift_file,

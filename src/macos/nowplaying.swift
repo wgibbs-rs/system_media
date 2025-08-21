@@ -2,7 +2,6 @@ import Foundation
 import MediaPlayer
 import AVFoundation
 import AppKit
-import Cocoa
 
 @_silgen_name("rust_resume_playback_command")
 public func rustStartPlaybackCommand()
@@ -56,21 +55,6 @@ public func setMetadataGenre(genre : UnsafePointer<CChar>) {
     }
 }
 
-func resize(image: NSImage, to newSize: NSSize) -> NSImage {
-    let resizedImage = NSImage(size: newSize)
-    resizedImage.lockFocus()
-    defer { resizedImage.unlockFocus() }
-
-    image.draw(
-        in: NSRect(origin: .zero, size: newSize),
-        from: NSRect(origin: .zero, size: image.size),
-        operation: .copy,
-        fraction: 1.0
-    )
-
-    return resizedImage
-}
-
 @_cdecl("swift_set_metadata_image")
 public func setMetadataImage(bytes: UnsafePointer<UInt8>, length: Int) {
     DispatchQueue.main.async {
@@ -84,7 +68,7 @@ public func setMetadataImage(bytes: UnsafePointer<UInt8>, length: Int) {
             newImage.unlockFocus()
             return newImage
         }
-        
+
         var info = MPNowPlayingInfoCenter.default().nowPlayingInfo ?? [:]
         info[MPMediaItemPropertyArtwork] = artwork
         MPNowPlayingInfoCenter.default().nowPlayingInfo = info
