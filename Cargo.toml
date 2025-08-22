@@ -1,7 +1,9 @@
 [package]
-name = "system-media"
-version = "0.1.0"
+name = "system_media"
+version = "0.1.5"
 edition = "2024"
+
+exclude = ["examples/*"]
 
 authors = ["William Gibbs <wgibbs08@outlook.com>"]
 description = "Rust crate for interacting with the NowPlaying API"

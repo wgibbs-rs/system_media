@@ -32,3 +32,6 @@ fn main() {
     println!("cargo:rustc-link-search=native={}", out_dir);
     println!("cargo:rustc-link-lib=static=swiftlib");
 }
+
+#[cfg(not(any(target_os = "macos")))]
+fn main() {}
